@@ -2,11 +2,14 @@ import httpStatus from "http-status";
 import ApiError from "../../../errors/ApiError";
 import { IImageUploadResponse } from "./images.interface";
 import cloudinary from "./cloudinary.config";
+import path from "path";
 
 // Upload Image
 const uploadImage = async (filePath: string): Promise<IImageUploadResponse> => {
   try {
-    const result = await cloudinary.uploader.upload(filePath, {
+    const absolutePath = path.resolve(filePath);
+    console.log("path", absolutePath);
+    const result = await cloudinary.uploader.upload(absolutePath, {
       folder: "eventide-momento",
       resource_type: "auto",
     });

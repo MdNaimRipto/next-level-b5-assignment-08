@@ -9,6 +9,8 @@ const uploadImage = catchAsync(
   async (req: Request & { file?: Express.Multer.File }, res: Response) => {
     const file = req.file;
 
+    console.log({ file });
+
     if (!file) {
       return sendResponse(res, {
         success: false,

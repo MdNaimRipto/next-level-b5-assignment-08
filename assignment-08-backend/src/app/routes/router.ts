@@ -2,7 +2,6 @@ import express from "express";
 import { UserRouter } from "../modules/users/users.router";
 import { PaymentRouter } from "../modules/payment/payment.router";
 import { OrderRouter } from "../modules/order/order.router";
-import { AdminRouter } from "../modules/admin/admin.router";
 import { EventRouter } from "../modules/events/events.router";
 import { ReviewRouter } from "../modules/reviews/reviews.router";
 
@@ -22,10 +21,6 @@ const routes = [
   {
     path: "/order",
     route: OrderRouter,
-  },
-  {
-    path: "/admin",
-    route: AdminRouter,
   },
   {
     path: "/events",

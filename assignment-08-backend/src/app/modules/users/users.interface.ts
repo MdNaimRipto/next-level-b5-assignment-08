@@ -57,4 +57,5 @@ export type IUserFilters = {
   userName?: string;
   email?: string;
   accountStatus?: accountStatusEnums;
+  role?: roleEnums;
 };

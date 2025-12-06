@@ -11,4 +11,5 @@ export const UserFilterableFields = [
   "userName",
   "email",
   "accountStatus",
+  "role",
 ];

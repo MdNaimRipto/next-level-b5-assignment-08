@@ -15,9 +15,6 @@ const usersZodSchema = z.object({
     password: z.string({
       required_error: "Password is Required",
     }),
-    role: z.enum(RoleEnums as unknown as [string, ...string[]], {
-      required_error: "Role is required",
-    }),
   }),
 });
 
@@ -55,9 +52,6 @@ const updatePasswordZodSchema = z.object({
     }),
     confirmPassword: z.string({
       required_error: "Confirm Password is Required",
-    }),
-    userId: z.string({
-      required_error: "UID is Required",
     }),
   }),
 });

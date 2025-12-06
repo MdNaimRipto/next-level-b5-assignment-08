@@ -1,4 +1,4 @@
-import express, { Request, Response, NextFunction } from "express";
+import express from "express";
 import { ImageController } from "./images.controller";
 import multer, { StorageEngine } from "multer";
 import zodValidationRequest from "../../../middlewares/zodValidationRequest";
@@ -9,7 +9,7 @@ const router = express.Router();
 // Configure multer for file uploads
 const storage: StorageEngine = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/");
+    cb(null, "src/uploads/");
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);

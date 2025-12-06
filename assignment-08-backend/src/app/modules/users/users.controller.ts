@@ -72,7 +72,7 @@ const logout = catchAsync(async (req: Request, res: Response) => {
 // Update User
 const updatedUser = catchAsync(async (req: Request, res: Response) => {
   const { ...payload } = req.body;
-  const token = verifyAuthToken(req);
+  const token = jwtHelpers.verifyAuthToken(req);
 
   const result = await UserService.updateUser(payload, token);
 
@@ -87,7 +87,7 @@ const updatedUser = catchAsync(async (req: Request, res: Response) => {
 // Update Password
 const updatePassword = catchAsync(async (req: Request, res: Response) => {
   const { ...payload } = req.body;
-  const token = verifyAuthToken(req);
+  const token = jwtHelpers.verifyAuthToken(req);
 
   const result = await UserService.updatePassword(payload, token);
 
@@ -103,8 +103,9 @@ const updatePassword = catchAsync(async (req: Request, res: Response) => {
 const getAllUsers = catchAsync(async (req: Request, res: Response) => {
   const filters = pick(req.query, UserFilterableFields);
   const options = pick(req.query, paginationFields);
+  const token = jwtHelpers.verifyAuthToken(req);
 
-  const result = await UserService.getAllUsers(filters, options);
+  const result = await UserService.getAllUsers(filters, options, token);
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,

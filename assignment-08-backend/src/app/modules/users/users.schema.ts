@@ -21,6 +21,7 @@ export const usersSchema = new Schema<IUser>(
       type: String,
       enum: RoleEnums,
       required: true,
+      default: "USER",
     },
     bio: { type: String, required: true, default: "Not Updated Yet!" },
     interests: [{ type: String, required: true, default: [] }],

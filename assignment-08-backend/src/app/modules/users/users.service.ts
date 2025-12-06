@@ -17,6 +17,7 @@ import { calculatePaginationFunction } from "../../../helpers/paginationHelpers"
 import { SortOrder } from "mongoose";
 import { jwtHelpers } from "../../../helpers/jwtHelpers";
 import { Response } from "express";
+import { adminCheck } from "../../../util/roleCheck";
 
 //* User Register Custom
 const userRegister = async (payload: IUser): Promise<IAuthenticatedUser> => {
@@ -183,13 +184,7 @@ const getAuthenticatedUserDetails = async (
     email: email.toLowerCase(),
   }).select("-password");
 
-  return !result
-    ? null
-    : {
-        userName: String(result?.userName),
-        email: String(result?.email),
-        contactNumber: String(result?.contactNumber),
-      };
+  return !result ? null : result;
 };
 
 // * Logout
@@ -320,7 +315,14 @@ const updatePassword = async (
 const getAllUsers = async (
   filters: IUserFilters,
   paginationOptions: IPaginationOptions,
+  token: string,
 ) => {
+  const { id, email } = jwtHelpers.jwtVerify(token, config.jwt_access_secret);
+  const isAdmin = await adminCheck(email, String(id));
+  if (!isAdmin) {
+    return [];
+  }
+
   const { searchTerm, ...filterData } = filters;
   const andConditions = [];
   if (searchTerm) {
