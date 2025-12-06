@@ -6,7 +6,33 @@ input:-internal-autofill-selected {
   background-color: #fbf6e7 !important;
 }
 
+/*? Scrollbar Hidden */
+.scrollBarHidden::-webkit-scrollbar {
+  width: 0px;
+}
 
+.scrollBarHidden::-webkit-scrollbar-thumb {
+  background: #ffffff;
+}
+
+.scrollBarHidden::-webkit-scrollbar-track {
+  background: #ffffff;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slideDown {
+  animation: slideDown 0.25s ease-out;
+}
 
 @layer base {
   :root {
@@ -79,8 +105,6 @@ input:-internal-autofill-selected {
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }
-
-
 
 @layer base {
   * {
