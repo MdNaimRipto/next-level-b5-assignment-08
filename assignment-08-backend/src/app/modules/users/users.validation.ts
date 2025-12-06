@@ -1,0 +1,70 @@
+import { string, z } from "zod";
+import { RoleEnums } from "./user.constant";
+
+const usersZodSchema = z.object({
+  body: z.object({
+    userName: z.string({
+      required_error: "User Name is Required",
+    }),
+    email: z.string({
+      required_error: "Email is Required",
+    }),
+    contactNumber: z.string({
+      required_error: "Contact Number is Required",
+    }),
+    password: z.string({
+      required_error: "Password is Required",
+    }),
+    role: z.enum(RoleEnums as unknown as [string, ...string[]], {
+      required_error: "Role is required",
+    }),
+  }),
+});
+
+const loginUserZodSchema = z.object({
+  body: z.object({
+    email: z.string({
+      required_error: "Email is Required",
+    }),
+    password: z.string({
+      required_error: "Password is Required",
+    }),
+  }),
+});
+
+const userUpdateZodSchema = z.object({
+  body: z.object({
+    userName: z.string().optional(),
+    email: z.string().email("Invalid Email Format").optional(),
+    contactNumber: z.string().optional(),
+    profileImage: z.string().optional(),
+    bio: z.string().optional(),
+    interests: z.array(z.string()).optional(),
+    location: z.string().optional(), // matches your schema default "Not Updated Yet"
+    accountStatus: z.string().optional(),
+  }),
+});
+
+const updatePasswordZodSchema = z.object({
+  body: z.object({
+    currentPassword: z.string({
+      required_error: "Current Password is Required",
+    }),
+    newPassword: z.string({
+      required_error: "New Password is Required",
+    }),
+    confirmPassword: z.string({
+      required_error: "Confirm Password is Required",
+    }),
+    userId: z.string({
+      required_error: "UID is Required",
+    }),
+  }),
+});
+
+export const UserValidation = {
+  usersZodSchema,
+  loginUserZodSchema,
+  userUpdateZodSchema,
+  updatePasswordZodSchema,
+};

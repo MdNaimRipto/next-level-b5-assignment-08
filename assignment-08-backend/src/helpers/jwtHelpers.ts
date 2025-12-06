@@ -1,0 +1,72 @@
+import { Request, Response } from "express";
+import jwt, { Secret, sign, SignOptions } from "jsonwebtoken";
+import httpStatus from "http-status";
+import { Types } from "mongoose";
+import ApiError from "../errors/ApiError";
+import config from "../config/config";
+
+export interface IJwtPayload {
+  email: string;
+  id: Types.ObjectId;
+  iat: number;
+  exp: number;
+}
+
+export interface AuthTokens {
+  accessToken?: string;
+  refreshToken?: string;
+}
+
+const createToken = (
+  payload: object,
+  secret: Secret,
+  expireTime: string,
+): string => {
+  return sign(payload, secret, {
+    expiresIn: Number(expireTime),
+  } as SignOptions);
+};
+
+export const setAuthCookie = (res: Response, tokenInfo: AuthTokens) => {
+  if (tokenInfo.accessToken) {
+    res.cookie("accessToken", tokenInfo.accessToken, {
+      httpOnly: true,
+      secure: true,
+      maxAge: Number(config.jwt_access_expires_in),
+      sameSite: "none",
+    });
+  }
+
+  if (tokenInfo.refreshToken) {
+    res.cookie("refreshToken", tokenInfo.refreshToken, {
+      httpOnly: true,
+      secure: true,
+      maxAge: Number(config.jwt_refresh_expires_in),
+      sameSite: "none",
+    });
+  }
+};
+
+const jwtVerify = (token: string, secret: Secret): IJwtPayload => {
+  return jwt.verify(token, secret) as IJwtPayload;
+};
+
+const verifyAuthToken = (req: Request) => {
+  const token = req.cookies.accessToken;
+
+  // Check if the Authorization header is present
+  if (!token) {
+    throw new ApiError(
+      httpStatus.UNAUTHORIZED,
+      "Authorization Token is Missing",
+    );
+  }
+
+  return token;
+};
+
+export const jwtHelpers = {
+  createToken,
+  jwtVerify,
+  verifyAuthToken,
+};
