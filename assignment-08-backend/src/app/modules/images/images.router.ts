@@ -23,10 +23,6 @@ const upload = multer({ storage });
 router.post("/upload", upload.single("file"), ImageController.uploadImage);
 
 // Delete Image
-router.post(
-  "/delete",
-  zodValidationRequest(ImageValidation.deleteImageZodSchema),
-  ImageController.deleteImage,
-);
+router.post("/delete", ImageController.deleteImage);
 
 export const ImageRouter = router;

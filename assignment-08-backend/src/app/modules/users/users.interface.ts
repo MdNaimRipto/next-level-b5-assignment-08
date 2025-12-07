@@ -15,6 +15,7 @@ export interface IUser {
   interests: Array<string>;
   ratingCount: number;
   ratingAvg: number;
+  IsFirstTimeUpdated: boolean;
 }
 
 export interface IUserWithoutPassword {
@@ -33,6 +34,7 @@ export interface IUserWithoutPassword {
   ratingAvg: number;
   createdAt: Date;
   updatedAt: Date;
+  IsFirstTimeUpdated: boolean;
 }
 
 export interface ILoginUser {

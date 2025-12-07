@@ -17,7 +17,7 @@ import { calculatePaginationFunction } from "../../../helpers/paginationHelpers"
 import { SortOrder } from "mongoose";
 import { jwtHelpers } from "../../../helpers/jwtHelpers";
 import { Response } from "express";
-import { adminCheck } from "../../../util/roleCheck";
+import { roleCheck } from "../../../util/roleCheck";
 
 //* User Register Custom
 const userRegister = async (payload: IUser): Promise<IAuthenticatedUser> => {
@@ -216,9 +216,29 @@ const updateUser = async (
     throw new ApiError(httpStatus.NOT_FOUND, "User Not Found");
   }
 
-  const { password, role, ...updatePayload } = payload;
+  const { password, ...updatePayload } = payload;
 
-  if (password !== undefined || role !== undefined) {
+  if (isExistsUser.IsFirstTimeUpdated !== true) {
+    payload.role !== undefined && (updatePayload.role = payload.role);
+    payload.IsFirstTimeUpdated !== undefined &&
+      (updatePayload.IsFirstTimeUpdated = payload.IsFirstTimeUpdated);
+  } else {
+    if (payload.role !== undefined) {
+      throw new ApiError(
+        httpStatus.UNAUTHORIZED,
+        "Role Already has been update cannot be update again",
+      );
+    }
+
+    if (payload.IsFirstTimeUpdated !== undefined) {
+      throw new ApiError(
+        httpStatus.UNAUTHORIZED,
+        "First-time update flag cannot be modified",
+      );
+    }
+  }
+
+  if (password !== undefined) {
     throw new ApiError(
       httpStatus.UNAUTHORIZED,
       "Permission Denied! Please Try Again.",
@@ -318,7 +338,7 @@ const getAllUsers = async (
   token: string,
 ) => {
   const { id, email } = jwtHelpers.jwtVerify(token, config.jwt_access_secret);
-  const isAdmin = await adminCheck(email, String(id));
+  const isAdmin = await roleCheck(email, String(id), ["ADMIN"]);
   if (!isAdmin) {
     return [];
   }

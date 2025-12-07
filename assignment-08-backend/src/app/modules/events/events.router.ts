@@ -13,7 +13,7 @@ router.post(
 
 router.get("/", EventController.getAllEvents);
 
-router.get("/host/:hostId", EventController.getEventsByHost);
+router.get("/host", EventController.getEventsByHost);
 
 router.get("/:id", EventController.getEventDetails);
 

@@ -6,16 +6,18 @@ import httpStatus from "http-status";
 import pick from "../../../shared/shared";
 import { EventFilterableFields } from "./events.constant";
 import { paginationFields } from "../../../constants/pagination.constant";
+import { jwtHelpers } from "../../../helpers/jwtHelpers";
 
 // Create Event
 const createEvent = catchAsync(async (req: Request, res: Response) => {
   const { ...eventInfo } = req.body;
+  const token = jwtHelpers.verifyAuthToken(req);
 
-  const result = await EventService.createEvent(eventInfo);
+  const result = await EventService.createEvent(eventInfo, token);
 
   sendResponse(res, {
     success: true,
-    statusCode: httpStatus.CREATED,
+    statusCode: httpStatus.OK,
     message: "Event Created Successfully",
     data: result,
   });
@@ -54,8 +56,9 @@ const getEventDetails = catchAsync(async (req: Request, res: Response) => {
 const updateEvent = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const { ...updatedData } = req.body;
+  const token = jwtHelpers.verifyAuthToken(req);
 
-  const result = await EventService.updateEvent(id, updatedData);
+  const result = await EventService.updateEvent(id, updatedData, token);
 
   sendResponse(res, {
     success: true,
@@ -68,8 +71,9 @@ const updateEvent = catchAsync(async (req: Request, res: Response) => {
 // Delete Event
 const deleteEvent = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
+  const token = jwtHelpers.verifyAuthToken(req);
 
-  const result = await EventService.deleteEvent(id);
+  const result = await EventService.deleteEvent(id, token);
 
   sendResponse(res, {
     success: true,
@@ -81,10 +85,10 @@ const deleteEvent = catchAsync(async (req: Request, res: Response) => {
 
 // Get Events by Host
 const getEventsByHost = catchAsync(async (req: Request, res: Response) => {
-  const { hostId } = req.params;
   const paginationOptions = pick(req.query, paginationFields);
+  const token = jwtHelpers.verifyAuthToken(req);
 
-  const result = await EventService.getEventsByHost(hostId, paginationOptions);
+  const result = await EventService.getEventsByHost(paginationOptions, token);
 
   sendResponse(res, {
     success: true,

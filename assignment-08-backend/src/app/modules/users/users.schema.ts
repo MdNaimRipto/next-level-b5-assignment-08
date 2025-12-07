@@ -17,6 +17,7 @@ export const usersSchema = new Schema<IUser>(
     password: { type: String, required: true },
     location: { type: String, required: true, default: "Not Updated Yet!" },
     activeStatus: { type: Boolean, required: true, default: true },
+    IsFirstTimeUpdated: { type: Boolean, required: true, default: false },
     role: {
       type: String,
       enum: RoleEnums,

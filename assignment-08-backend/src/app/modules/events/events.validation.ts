@@ -3,9 +3,6 @@ import { EventCategoryEnums } from "./events.constant";
 
 const createEventZodSchema = z.object({
   body: z.object({
-    hostId: z.string({
-      required_error: "Host ID is Required",
-    }),
     eventName: z.string({
       required_error: "Event Name is Required",
     }),

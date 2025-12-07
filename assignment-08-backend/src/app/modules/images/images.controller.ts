@@ -33,9 +33,9 @@ const uploadImage = catchAsync(
 
 // Delete Image
 const deleteImage = catchAsync(async (req: Request, res: Response) => {
-  const { publicId } = req.body;
+  const { ...payload } = req.body;
 
-  await ImageService.deleteImage(publicId);
+  await ImageService.deleteImage(payload);
 
   sendResponse(res, {
     success: true,

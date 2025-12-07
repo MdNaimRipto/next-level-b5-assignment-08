@@ -5,11 +5,23 @@ import { Events } from "./events.schema";
 import { IPaginationOptions } from "../../../interface/pagination";
 import { EventSearchableFields } from "./events.constant";
 import { calculatePaginationFunction } from "../../../helpers/paginationHelpers";
-import { SortOrder } from "mongoose";
+import mongoose, { SortOrder } from "mongoose";
+import { jwtHelpers } from "../../../helpers/jwtHelpers";
+import config from "../../../config/config";
+import { roleCheck } from "../../../util/roleCheck";
+import { ImageService } from "../images/images.service";
 
 // Create Event
-const createEvent = async (payload: IEvent): Promise<null> => {
-  const event = await Events.create(payload);
+const createEvent = async (payload: IEvent, token: string): Promise<null> => {
+  const { id, email } = jwtHelpers.jwtVerify(token, config.jwt_access_secret);
+  const isAdminOrHost = await roleCheck(email, String(id), ["ADMIN", "HOST"]);
+  if (!isAdminOrHost) {
+    throw new ApiError(
+      httpStatus.UNAUTHORIZED,
+      "This account has no access to upload event!",
+    );
+  }
+  const event = await Events.create({ ...payload, hostId: id });
 
   if (!event) {
     throw new ApiError(httpStatus.BAD_REQUEST, "Failed to create event");
@@ -86,7 +98,19 @@ const getEventDetails = async (id: string): Promise<IEvent | null> => {
 const updateEvent = async (
   id: string,
   payload: Partial<IEvent>,
+  token: string,
 ): Promise<null> => {
+  const { id: uid, email } = jwtHelpers.jwtVerify(
+    token,
+    config.jwt_access_secret,
+  );
+  const isAdminOrHost = await roleCheck(email, String(uid), ["ADMIN", "HOST"]);
+  if (!isAdminOrHost) {
+    throw new ApiError(
+      httpStatus.UNAUTHORIZED,
+      "This account has no access to upload event!",
+    );
+  }
   const event = await Events.findByIdAndUpdate(id, payload, {
     new: true,
     runValidators: true,
@@ -100,21 +124,70 @@ const updateEvent = async (
 };
 
 // Delete Event
-const deleteEvent = async (id: string): Promise<null> => {
-  const event = await Events.findByIdAndDelete(id);
-
-  if (!event) {
-    throw new ApiError(httpStatus.NOT_FOUND, "Event not found");
+export const deleteEvent = async (id: string, token: string): Promise<null> => {
+  const { id: uid, email } = jwtHelpers.jwtVerify(
+    token,
+    config.jwt_access_secret,
+  );
+  const isAdminOrHost = await roleCheck(email, String(id), ["ADMIN", "HOST"]);
+  if (!isAdminOrHost) {
+    throw new ApiError(
+      httpStatus.UNAUTHORIZED,
+      "This account has no access to upload event!",
+    );
   }
+  const session = await mongoose.startSession();
+  session.startTransaction();
 
-  return null;
+  try {
+    // 1. Check if event exists
+    const event = await Events.findById(id).session(session);
+
+    if (!event) {
+      throw new ApiError(httpStatus.NOT_FOUND, "Event not found");
+    }
+
+    // 2. Delete the image from Cloudinary (outside of DB but logically part of transaction)
+    if (event.banner) {
+      await ImageService.deleteImage({
+        publicId: event.banner, // better to send URL and let service extract publicId
+      });
+    }
+
+    // 3. Delete the event
+    await Events.findByIdAndDelete(id).session(session);
+
+    // 4. Commit transaction
+    await session.commitTransaction();
+    session.endSession();
+    return null;
+  } catch (error) {
+    // If anything fails, rollback DB changes (Cloudinary cannot be rolled back)
+    await session.abortTransaction();
+    session.endSession();
+    throw error;
+  }
 };
 
 // Get Events by Host
 const getEventsByHost = async (
-  hostId: string,
   paginationOptions: IPaginationOptions,
+  token: string,
 ) => {
+  const { id: hostId, email } = jwtHelpers.jwtVerify(
+    token,
+    config.jwt_access_secret,
+  );
+  const isAdminOrHost = await roleCheck(email, String(hostId), [
+    "ADMIN",
+    "HOST",
+  ]);
+  if (!isAdminOrHost) {
+    throw new ApiError(
+      httpStatus.UNAUTHORIZED,
+      "This account has no access to upload event!",
+    );
+  }
   const { page, limit, skip, sortBy, sortOrder } =
     calculatePaginationFunction(paginationOptions);
 
