@@ -18,7 +18,9 @@ const storage = multer_1.default.diskStorage({
         cb(null, file.fieldname + "-" + uniqueSuffix);
     },
 });
-const upload = (0, multer_1.default)({ storage });
+const upload = (0, multer_1.default)({
+    storage: multer_1.default.memoryStorage(),
+});
 // Upload Image
 router.post("/upload", upload.single("file"), images_controller_1.ImageController.uploadImage);
 // Delete Image

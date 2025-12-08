@@ -16,31 +16,22 @@ exports.ImageService = void 0;
 const http_status_1 = __importDefault(require("http-status"));
 const ApiError_1 = __importDefault(require("../../../errors/ApiError"));
 const cloudinary_config_1 = __importDefault(require("./cloudinary.config"));
-const path_1 = __importDefault(require("path"));
-const promises_1 = __importDefault(require("fs/promises"));
-// Upload Image
-const uploadImage = (filePath) => __awaiter(void 0, void 0, void 0, function* () {
-    const absolutePath = path_1.default.resolve(filePath);
-    try {
-        const result = yield cloudinary_config_1.default.uploader.upload(absolutePath, {
+const uploadImage = (buffer) => __awaiter(void 0, void 0, void 0, function* () {
+    return new Promise((resolve, reject) => {
+        const stream = cloudinary_config_1.default.uploader.upload_stream({
             folder: "eventide-momento",
             resource_type: "auto",
+        }, (error, result) => {
+            if (error || !result) {
+                return reject(error);
+            }
+            resolve({
+                url: result.secure_url,
+                publicId: result.public_id,
+            });
         });
-        // After successful upload → clean temp file
-        yield promises_1.default.unlink(absolutePath);
-        return {
-            url: result.secure_url,
-            publicId: result.public_id,
-        };
-    }
-    catch (error) {
-        // Even on failure, try to clean up
-        try {
-            yield promises_1.default.unlink(absolutePath);
-        }
-        catch (_) { }
-        throw new ApiError_1.default(http_status_1.default.BAD_REQUEST, "Failed to upload image");
-    }
+        stream.end(buffer);
+    });
 });
 // Delete Image
 const deleteImage = (url) => __awaiter(void 0, void 0, void 0, function* () {

@@ -28,10 +28,8 @@ const catchAsync_1 = __importDefault(require("../../../shared/catchAsync"));
 const images_service_1 = require("./images.service");
 const sendResponse_1 = __importDefault(require("../../../shared/sendResponse"));
 const http_status_1 = __importDefault(require("http-status"));
-// Upload Image
 const uploadImage = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const file = req.file;
-    console.log({ file });
     if (!file) {
         return (0, sendResponse_1.default)(res, {
             success: false,
@@ -40,7 +38,7 @@ const uploadImage = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, vo
             data: null,
         });
     }
-    const result = yield images_service_1.ImageService.uploadImage(file.path);
+    const result = yield images_service_1.ImageService.uploadImage(file.buffer);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,

@@ -134,11 +134,11 @@ export const deleteEvent = async (id: string, token: string): Promise<null> => {
     token,
     config.jwt_access_secret,
   );
-  const isAdminOrHost = await roleCheck(email, String(id), ["ADMIN", "HOST"]);
+  const isAdminOrHost = await roleCheck(email, String(uid), ["ADMIN", "HOST"]);
   if (!isAdminOrHost) {
     throw new ApiError(
       httpStatus.UNAUTHORIZED,
-      "This account has no access to upload event!",
+      "This account has no access to delete event!",
     );
   }
   const session = await mongoose.startSession();

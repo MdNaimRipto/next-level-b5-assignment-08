@@ -4,12 +4,9 @@ import { ImageService } from "./images.service";
 import sendResponse from "../../../shared/sendResponse";
 import httpStatus from "http-status";
 
-// Upload Image
 const uploadImage = catchAsync(
   async (req: Request & { file?: Express.Multer.File }, res: Response) => {
     const file = req.file;
-
-    console.log({ file });
 
     if (!file) {
       return sendResponse(res, {
@@ -20,7 +17,7 @@ const uploadImage = catchAsync(
       });
     }
 
-    const result = await ImageService.uploadImage(file.path);
+    const result = await ImageService.uploadImage(file.buffer);
 
     sendResponse(res, {
       success: true,

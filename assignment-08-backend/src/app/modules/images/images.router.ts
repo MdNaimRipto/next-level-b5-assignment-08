@@ -1,8 +1,6 @@
 import express from "express";
 import { ImageController } from "./images.controller";
 import multer, { StorageEngine } from "multer";
-import zodValidationRequest from "../../../middlewares/zodValidationRequest";
-import { ImageValidation } from "./images.validation";
 
 const router = express.Router();
 
@@ -17,7 +15,9 @@ const storage: StorageEngine = multer.diskStorage({
   },
 });
 
-const upload = multer({ storage });
+const upload = multer({
+  storage: multer.memoryStorage(),
+});
 
 // Upload Image
 router.post("/upload", upload.single("file"), ImageController.uploadImage);

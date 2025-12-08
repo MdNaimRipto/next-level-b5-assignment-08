@@ -117,9 +117,9 @@ const updateEvent = (id, payload, token) => __awaiter(void 0, void 0, void 0, fu
 // Delete Event
 const deleteEvent = (id, token) => __awaiter(void 0, void 0, void 0, function* () {
     const { id: uid, email } = jwtHelpers_1.jwtHelpers.jwtVerify(token, config_1.default.jwt_access_secret);
-    const isAdminOrHost = yield (0, roleCheck_1.roleCheck)(email, String(id), ["ADMIN", "HOST"]);
+    const isAdminOrHost = yield (0, roleCheck_1.roleCheck)(email, String(uid), ["ADMIN", "HOST"]);
     if (!isAdminOrHost) {
-        throw new ApiError_1.default(http_status_1.default.UNAUTHORIZED, "This account has no access to upload event!");
+        throw new ApiError_1.default(http_status_1.default.UNAUTHORIZED, "This account has no access to delete event!");
     }
     const session = yield mongoose_1.default.startSession();
     session.startTransaction();
