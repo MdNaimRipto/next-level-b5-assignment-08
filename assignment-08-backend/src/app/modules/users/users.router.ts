@@ -37,4 +37,6 @@ router.get("/getAllUsers", UserController.getAllUsers);
 
 router.delete("/deleteUser", UserController.deleteUser);
 
+router.get("/getPublicProfile/:id", UserController.getPublicProfile);
+
 export const UserRouter = router;

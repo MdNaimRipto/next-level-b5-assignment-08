@@ -86,9 +86,9 @@ const deleteEvent = catchAsync(async (req: Request, res: Response) => {
 // Get Events by Host
 const getEventsByHost = catchAsync(async (req: Request, res: Response) => {
   const paginationOptions = pick(req.query, paginationFields);
-  const token = jwtHelpers.verifyAuthToken(req);
+  const { id } = req.params;
 
-  const result = await EventService.getEventsByHost(paginationOptions, token);
+  const result = await EventService.getEventsByHost(paginationOptions, id);
 
   sendResponse(res, {
     success: true,

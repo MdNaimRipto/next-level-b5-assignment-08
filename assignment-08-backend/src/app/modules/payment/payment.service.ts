@@ -4,6 +4,7 @@ import config from "../../../config/config";
 import { IPaymentBody } from "./payment.interface";
 import { Orders } from "../order/order.schema";
 import { IOrder } from "../order/order.interface";
+import { Events } from "../events/events.schema";
 import Stripe from "stripe";
 
 const stripe = new Stripe(config.stripe_secret_key as string, {
@@ -31,7 +32,7 @@ const createPaymentLink = async (payload: IPaymentBody) => {
           quantity: 1,
         },
       ],
-      success_url: `${config.FRONTEND_URL}/user`,
+      success_url: `${config.FRONTEND_URL}/user/profile?tab=upcoming-events`,
       cancel_url: `${config.FRONTEND_URL}/events`,
       metadata: {
         userId: String(userId),
@@ -81,6 +82,23 @@ export const handleStripeWebhook = async (req: any, res: any) => {
       } as any;
 
       const result = await Orders.create(orderPayload);
+
+      // After order created, increment event's totalParticipants and update status if needed
+      try {
+        const eventId = metadata.eventId;
+        const event = await Events.findById(eventId);
+        if (event) {
+          // increment participants
+          await Events.findByIdAndUpdate(
+            eventId,
+            { $inc: { totalParticipants: 1 } },
+            { new: true },
+          );
+        }
+      } catch (err) {
+        // Log but don't block order creation
+        console.error("Error updating event participants/status:", err);
+      }
 
       console.log("Order Result: ", result);
       console.log(

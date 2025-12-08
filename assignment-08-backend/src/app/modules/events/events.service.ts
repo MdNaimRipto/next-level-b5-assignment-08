@@ -89,7 +89,12 @@ const getAllEvents = async (
 
 // Get Single Event
 const getEventDetails = async (id: string): Promise<IEvent | null> => {
-  const event = await Events.findById(id);
+  const event = await Events.findById(id).populate([
+    {
+      path: "hostId",
+      select: "userName email createdAt profileImage",
+    },
+  ]);
 
   return event;
 };
@@ -172,22 +177,8 @@ export const deleteEvent = async (id: string, token: string): Promise<null> => {
 // Get Events by Host
 const getEventsByHost = async (
   paginationOptions: IPaginationOptions,
-  token: string,
+  hostId: string,
 ) => {
-  const { id: hostId, email } = jwtHelpers.jwtVerify(
-    token,
-    config.jwt_access_secret,
-  );
-  const isAdminOrHost = await roleCheck(email, String(hostId), [
-    "ADMIN",
-    "HOST",
-  ]);
-  if (!isAdminOrHost) {
-    throw new ApiError(
-      httpStatus.UNAUTHORIZED,
-      "This account has no access to upload event!",
-    );
-  }
   const { page, limit, skip, sortBy, sortOrder } =
     calculatePaginationFunction(paginationOptions);
 

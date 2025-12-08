@@ -62,7 +62,11 @@ const getUserOrders = async (accessToken: string) => {
     accessToken,
     config.jwt_access_secret,
   ) as any;
-  const result = await Orders.find({ userId: id });
+  const result = await Orders.find({ userId: id }).populate([
+    {
+      path: "eventId",
+    },
+  ]);
   return result;
 };
 

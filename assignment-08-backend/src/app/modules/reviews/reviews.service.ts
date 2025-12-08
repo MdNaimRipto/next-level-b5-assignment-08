@@ -6,6 +6,7 @@ import { IPaginationOptions } from "../../../interface/pagination";
 import { ReviewSearchableFields } from "./reviews.constant";
 import { calculatePaginationFunction } from "../../../helpers/paginationHelpers";
 import { SortOrder } from "mongoose";
+import { IUserWithoutPassword } from "../users/users.interface";
 
 // Create Review
 const createReview = async (payload: IReview): Promise<IReview> => {
@@ -92,7 +93,13 @@ const getReviewsByHost = async (
   const result = await Reviews.find({ hostId })
     .sort(sortConditions)
     .skip(skip)
-    .limit(limit);
+    .limit(limit)
+    .populate([
+      {
+        path: "userId",
+        select: "userName profileImage",
+      },
+    ]);
 
   const total = await Reviews.countDocuments({ hostId });
 

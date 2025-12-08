@@ -6,6 +6,7 @@ import {
   IUpdatePassword,
   IUser,
   IUserFilters,
+  IUserWithoutPassword,
 } from "./users.interface";
 import { Users } from "./users.schema";
 import config from "../../../config/config";
@@ -406,6 +407,15 @@ const deleteUser = async ({ id }: { id: string }) => {
   return null;
 };
 
+// Get Single Event
+const getPublicProfile = async (id: string): Promise<Partial<IUser> | null> => {
+  const user = await Users.findOne({
+    _id: id,
+  }).select("-password");
+
+  return user;
+};
+
 export const UserService = {
   userRegister,
   userLogin,
@@ -415,4 +425,5 @@ export const UserService = {
   updatePassword,
   getAllUsers,
   deleteUser,
+  getPublicProfile,
 };

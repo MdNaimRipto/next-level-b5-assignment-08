@@ -126,6 +126,18 @@ const deleteUser = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+// Public User
+const getPublicProfile = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const result = await UserService.getPublicProfile(id);
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Public Profile Retrieved Successfully",
+    data: result,
+  });
+});
+
 export const UserController = {
   userRegister,
   userLogin,
@@ -135,4 +147,5 @@ export const UserController = {
   updatePassword,
   getAllUsers,
   deleteUser,
+  getPublicProfile,
 };
