@@ -65,7 +65,11 @@ const getAllOrders = (filters, paginationOptions, accessToken) => __awaiter(void
 });
 const getUserOrders = (accessToken) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = jwtHelpers_1.jwtHelpers.jwtVerify(accessToken, config_1.default.jwt_access_secret);
-    const result = yield order_schema_1.Orders.find({ userId: id });
+    const result = yield order_schema_1.Orders.find({ userId: id }).populate([
+        {
+            path: "eventId",
+        },
+    ]);
     return result;
 });
 const updateOrder = (id, payload) => __awaiter(void 0, void 0, void 0, function* () {

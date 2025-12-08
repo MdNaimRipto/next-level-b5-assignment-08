@@ -29,10 +29,12 @@ exports.usersSchema = new mongoose_1.Schema({
     password: { type: String, required: true },
     location: { type: String, required: true, default: "Not Updated Yet!" },
     activeStatus: { type: Boolean, required: true, default: true },
+    IsFirstTimeUpdated: { type: Boolean, required: true, default: false },
     role: {
         type: String,
         enum: user_constant_1.RoleEnums,
         required: true,
+        default: "USER",
     },
     bio: { type: String, required: true, default: "Not Updated Yet!" },
     interests: [{ type: String, required: true, default: [] }],

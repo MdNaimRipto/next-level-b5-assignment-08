@@ -8,7 +8,6 @@ const express_1 = __importDefault(require("express"));
 const users_router_1 = require("../modules/users/users.router");
 const payment_router_1 = require("../modules/payment/payment.router");
 const order_router_1 = require("../modules/order/order.router");
-const admin_router_1 = require("../modules/admin/admin.router");
 const events_router_1 = require("../modules/events/events.router");
 const reviews_router_1 = require("../modules/reviews/reviews.router");
 const images_router_1 = require("../modules/images/images.router");
@@ -25,10 +24,6 @@ const routes = [
     {
         path: "/order",
         route: order_router_1.OrderRouter,
-    },
-    {
-        path: "/admin",
-        route: admin_router_1.AdminRouter,
     },
     {
         path: "/events",

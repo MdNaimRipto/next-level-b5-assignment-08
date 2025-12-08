@@ -31,13 +31,15 @@ const http_status_1 = __importDefault(require("http-status"));
 const shared_1 = __importDefault(require("../../../shared/shared"));
 const events_constant_1 = require("./events.constant");
 const pagination_constant_1 = require("../../../constants/pagination.constant");
+const jwtHelpers_1 = require("../../../helpers/jwtHelpers");
 // Create Event
 const createEvent = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const eventInfo = __rest(req.body, []);
-    const result = yield events_service_1.EventService.createEvent(eventInfo);
+    const token = jwtHelpers_1.jwtHelpers.verifyAuthToken(req);
+    const result = yield events_service_1.EventService.createEvent(eventInfo, token);
     (0, sendResponse_1.default)(res, {
         success: true,
-        statusCode: http_status_1.default.CREATED,
+        statusCode: http_status_1.default.OK,
         message: "Event Created Successfully",
         data: result,
     });
@@ -69,7 +71,8 @@ const getEventDetails = (0, catchAsync_1.default)((req, res) => __awaiter(void 0
 const updateEvent = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const updatedData = __rest(req.body, []);
-    const result = yield events_service_1.EventService.updateEvent(id, updatedData);
+    const token = jwtHelpers_1.jwtHelpers.verifyAuthToken(req);
+    const result = yield events_service_1.EventService.updateEvent(id, updatedData, token);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,
@@ -80,7 +83,8 @@ const updateEvent = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, vo
 // Delete Event
 const deleteEvent = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
-    const result = yield events_service_1.EventService.deleteEvent(id);
+    const token = jwtHelpers_1.jwtHelpers.verifyAuthToken(req);
+    const result = yield events_service_1.EventService.deleteEvent(id, token);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,
@@ -90,9 +94,9 @@ const deleteEvent = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, vo
 }));
 // Get Events by Host
 const getEventsByHost = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { hostId } = req.params;
     const paginationOptions = (0, shared_1.default)(req.query, pagination_constant_1.paginationFields);
-    const result = yield events_service_1.EventService.getEventsByHost(hostId, paginationOptions);
+    const { id } = req.params;
+    const result = yield events_service_1.EventService.getEventsByHost(paginationOptions, id);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,

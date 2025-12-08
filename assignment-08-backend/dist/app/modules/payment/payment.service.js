@@ -17,6 +17,7 @@ const ApiError_1 = __importDefault(require("../../../errors/ApiError"));
 const http_status_1 = __importDefault(require("http-status"));
 const config_1 = __importDefault(require("../../../config/config"));
 const order_schema_1 = require("../order/order.schema");
+const events_schema_1 = require("../events/events.schema");
 const stripe_1 = __importDefault(require("stripe"));
 const stripe = new stripe_1.default(config_1.default.stripe_secret_key, {
     apiVersion: "2025-10-29.clover",
@@ -41,7 +42,7 @@ const createPaymentLink = (payload) => __awaiter(void 0, void 0, void 0, functio
                     quantity: 1,
                 },
             ],
-            success_url: `${config_1.default.FRONTEND_URL}/user`,
+            success_url: `${config_1.default.FRONTEND_URL}/user/profile?tab=upcoming-events`,
             cancel_url: `${config_1.default.FRONTEND_URL}/events`,
             metadata: {
                 userId: String(userId),
@@ -83,6 +84,19 @@ const handleStripeWebhook = (req, res) => __awaiter(void 0, void 0, void 0, func
                 paymentDate: new Date().toISOString(),
             };
             const result = yield order_schema_1.Orders.create(orderPayload);
+            // After order created, increment event's totalParticipants and update status if needed
+            try {
+                const eventId = metadata.eventId;
+                const event = yield events_schema_1.Events.findById(eventId);
+                if (event) {
+                    // increment participants
+                    yield events_schema_1.Events.findByIdAndUpdate(eventId, { $inc: { totalParticipants: 1 } }, { new: true });
+                }
+            }
+            catch (err) {
+                // Log but don't block order creation
+                console.error("Error updating event participants/status:", err);
+            }
             console.log("Order Result: ", result);
             console.log(`✅ Order placed successfully for transaction: ${paymentIntentId}`);
         }

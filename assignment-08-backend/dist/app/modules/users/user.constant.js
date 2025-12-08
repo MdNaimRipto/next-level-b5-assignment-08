@@ -9,4 +9,5 @@ exports.UserFilterableFields = [
     "userName",
     "email",
     "accountStatus",
+    "role",
 ];

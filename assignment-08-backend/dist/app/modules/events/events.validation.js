@@ -5,9 +5,6 @@ const zod_1 = require("zod");
 const events_constant_1 = require("./events.constant");
 const createEventZodSchema = zod_1.z.object({
     body: zod_1.z.object({
-        hostId: zod_1.z.string({
-            required_error: "Host ID is Required",
-        }),
         eventName: zod_1.z.string({
             required_error: "Event Name is Required",
         }),

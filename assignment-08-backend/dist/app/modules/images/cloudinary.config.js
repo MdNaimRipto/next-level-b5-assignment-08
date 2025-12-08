@@ -9,5 +9,6 @@ cloudinary_1.v2.config({
     cloud_name: config_1.default.cloudinary_cloud_name,
     api_key: config_1.default.cloudinary_api_key,
     api_secret: config_1.default.cloudinary_api_secret,
+    secure: true,
 });
 exports.default = cloudinary_1.v2;

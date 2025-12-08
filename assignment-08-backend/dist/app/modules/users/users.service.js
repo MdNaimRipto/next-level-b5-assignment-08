@@ -33,6 +33,7 @@ const nodemailer_1 = __importDefault(require("nodemailer"));
 const user_constant_1 = require("./user.constant");
 const paginationHelpers_1 = require("../../../helpers/paginationHelpers");
 const jwtHelpers_1 = require("../../../helpers/jwtHelpers");
+const roleCheck_1 = require("../../../util/roleCheck");
 //* User Register Custom
 const userRegister = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, contactNumber } = payload;
@@ -142,13 +143,7 @@ const getAuthenticatedUserDetails = (accessToken) => __awaiter(void 0, void 0, v
         _id: id,
         email: email.toLowerCase(),
     }).select("-password");
-    return !result
-        ? null
-        : {
-            userName: String(result === null || result === void 0 ? void 0 : result.userName),
-            email: String(result === null || result === void 0 ? void 0 : result.email),
-            contactNumber: String(result === null || result === void 0 ? void 0 : result.contactNumber),
-        };
+    return !result ? null : result;
 });
 // * Logout
 const logout = (res) => __awaiter(void 0, void 0, void 0, function* () {
@@ -172,8 +167,21 @@ const updateUser = (payload, token) => __awaiter(void 0, void 0, void 0, functio
     if (!isExistsUser) {
         throw new ApiError_1.default(http_status_1.default.NOT_FOUND, "User Not Found");
     }
-    const { password, role } = payload, updatePayload = __rest(payload, ["password", "role"]);
-    if (password !== undefined || role !== undefined) {
+    const { password } = payload, updatePayload = __rest(payload, ["password"]);
+    if (isExistsUser.IsFirstTimeUpdated !== true) {
+        payload.role !== undefined && (updatePayload.role = payload.role);
+        payload.IsFirstTimeUpdated !== undefined &&
+            (updatePayload.IsFirstTimeUpdated = payload.IsFirstTimeUpdated);
+    }
+    else {
+        if (payload.role !== undefined) {
+            throw new ApiError_1.default(http_status_1.default.UNAUTHORIZED, "Role Already has been update cannot be update again");
+        }
+        if (payload.IsFirstTimeUpdated !== undefined) {
+            throw new ApiError_1.default(http_status_1.default.UNAUTHORIZED, "First-time update flag cannot be modified");
+        }
+    }
+    if (password !== undefined) {
         throw new ApiError_1.default(http_status_1.default.UNAUTHORIZED, "Permission Denied! Please Try Again.");
     }
     if (payload.email) {
@@ -224,7 +232,12 @@ const updatePassword = (payload, token) => __awaiter(void 0, void 0, void 0, fun
     return null;
 });
 //* Get All Users
-const getAllUsers = (filters, paginationOptions) => __awaiter(void 0, void 0, void 0, function* () {
+const getAllUsers = (filters, paginationOptions, token) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id, email } = jwtHelpers_1.jwtHelpers.jwtVerify(token, config_1.default.jwt_access_secret);
+    const isAdmin = yield (0, roleCheck_1.roleCheck)(email, String(id), ["ADMIN"]);
+    if (!isAdmin) {
+        return [];
+    }
     const { searchTerm } = filters, filterData = __rest(filters, ["searchTerm"]);
     const andConditions = [];
     if (searchTerm) {
@@ -278,6 +291,13 @@ const deleteUser = (_a) => __awaiter(void 0, [_a], void 0, function* ({ id }) {
     yield users_schema_1.Users.findOneAndDelete({ _id: id }, { new: true });
     return null;
 });
+// Get Single Event
+const getPublicProfile = (id) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield users_schema_1.Users.findOne({
+        _id: id,
+    }).select("-password");
+    return user;
+});
 exports.UserService = {
     userRegister,
     userLogin,
@@ -287,4 +307,5 @@ exports.UserService = {
     updatePassword,
     getAllUsers,
     deleteUser,
+    getPublicProfile,
 };

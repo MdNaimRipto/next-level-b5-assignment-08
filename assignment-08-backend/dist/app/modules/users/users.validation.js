@@ -2,7 +2,6 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserValidation = void 0;
 const zod_1 = require("zod");
-const user_constant_1 = require("./user.constant");
 const usersZodSchema = zod_1.z.object({
     body: zod_1.z.object({
         userName: zod_1.z.string({
@@ -16,9 +15,6 @@ const usersZodSchema = zod_1.z.object({
         }),
         password: zod_1.z.string({
             required_error: "Password is Required",
-        }),
-        role: zod_1.z.enum(user_constant_1.RoleEnums, {
-            required_error: "Role is required",
         }),
     }),
 });
@@ -54,9 +50,6 @@ const updatePasswordZodSchema = zod_1.z.object({
         }),
         confirmPassword: zod_1.z.string({
             required_error: "Confirm Password is Required",
-        }),
-        userId: zod_1.z.string({
-            required_error: "UID is Required",
         }),
     }),
 });

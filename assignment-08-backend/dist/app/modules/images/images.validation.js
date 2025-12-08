@@ -9,14 +9,6 @@ const uploadImageZodSchema = zod_1.z.object({
         }),
     }),
 });
-const deleteImageZodSchema = zod_1.z.object({
-    body: zod_1.z.object({
-        publicId: zod_1.z.string({
-            required_error: "Public ID is Required",
-        }),
-    }),
-});
 exports.ImageValidation = {
     uploadImageZodSchema,
-    deleteImageZodSchema,
 };

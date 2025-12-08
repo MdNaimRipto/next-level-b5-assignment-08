@@ -88,7 +88,13 @@ const getReviewsByHost = (hostId, paginationOptions) => __awaiter(void 0, void 0
     const result = yield reviews_schema_1.Reviews.find({ hostId })
         .sort(sortConditions)
         .skip(skip)
-        .limit(limit);
+        .limit(limit)
+        .populate([
+        {
+            path: "userId",
+            select: "userName profileImage",
+        },
+    ]);
     const total = yield reviews_schema_1.Reviews.countDocuments({ hostId });
     return {
         meta: {

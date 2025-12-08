@@ -28,7 +28,6 @@ const catchAsync_1 = __importDefault(require("../../../shared/catchAsync"));
 const users_service_1 = require("./users.service");
 const sendResponse_1 = __importDefault(require("../../../shared/sendResponse"));
 const http_status_1 = __importDefault(require("http-status"));
-const verifyAuthToken_1 = require("../../../util/verifyAuthToken");
 const shared_1 = __importDefault(require("../../../shared/shared"));
 const user_constant_1 = require("./user.constant");
 const pagination_constant_1 = require("../../../constants/pagination.constant");
@@ -81,7 +80,7 @@ const logout = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0,
 // Update User
 const updatedUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const payload = __rest(req.body, []);
-    const token = (0, verifyAuthToken_1.verifyAuthToken)(req);
+    const token = jwtHelpers_1.jwtHelpers.verifyAuthToken(req);
     const result = yield users_service_1.UserService.updateUser(payload, token);
     (0, sendResponse_1.default)(res, {
         success: true,
@@ -93,7 +92,7 @@ const updatedUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, vo
 // Update Password
 const updatePassword = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const payload = __rest(req.body, []);
-    const token = (0, verifyAuthToken_1.verifyAuthToken)(req);
+    const token = jwtHelpers_1.jwtHelpers.verifyAuthToken(req);
     const result = yield users_service_1.UserService.updatePassword(payload, token);
     (0, sendResponse_1.default)(res, {
         success: true,
@@ -106,7 +105,8 @@ const updatePassword = (0, catchAsync_1.default)((req, res) => __awaiter(void 0,
 const getAllUsers = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const filters = (0, shared_1.default)(req.query, user_constant_1.UserFilterableFields);
     const options = (0, shared_1.default)(req.query, pagination_constant_1.paginationFields);
-    const result = yield users_service_1.UserService.getAllUsers(filters, options);
+    const token = jwtHelpers_1.jwtHelpers.verifyAuthToken(req);
+    const result = yield users_service_1.UserService.getAllUsers(filters, options, token);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,
@@ -125,6 +125,17 @@ const deleteUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, voi
         data: result,
     });
 }));
+// Public User
+const getPublicProfile = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const result = yield users_service_1.UserService.getPublicProfile(id);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: "Public Profile Retrieved Successfully",
+        data: result,
+    });
+}));
 exports.UserController = {
     userRegister,
     userLogin,
@@ -134,4 +145,5 @@ exports.UserController = {
     updatePassword,
     getAllUsers,
     deleteUser,
+    getPublicProfile,
 };

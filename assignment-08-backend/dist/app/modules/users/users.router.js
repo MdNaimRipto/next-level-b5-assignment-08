@@ -17,4 +17,5 @@ router.patch("/updateUser", (0, zodValidationRequest_1.default)(users_validation
 router.patch("/updatePassword", (0, zodValidationRequest_1.default)(users_validation_1.UserValidation.updatePasswordZodSchema), users_controller_1.UserController.updatePassword);
 router.get("/getAllUsers", users_controller_1.UserController.getAllUsers);
 router.delete("/deleteUser", users_controller_1.UserController.deleteUser);
+router.get("/getPublicProfile/:id", users_controller_1.UserController.getPublicProfile);
 exports.UserRouter = router;
