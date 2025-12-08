@@ -35,7 +35,7 @@ app.use((0, cookie_parser_1.default)());
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use((0, cors_1.default)({
-    origin: config_1.default.FRONTEND_URL,
+    origin: ["http://localhost:3000", config_1.default.FRONTEND_URL],
     credentials: true,
 }));
 // * Basic Page

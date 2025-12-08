@@ -32,7 +32,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
-    origin: config.FRONTEND_URL,
+    origin: ["http://localhost:3000", config.FRONTEND_URL],
     credentials: true,
   }),
 );
