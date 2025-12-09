@@ -82,6 +82,7 @@ const updatedUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, vo
     const payload = __rest(req.body, []);
     const token = jwtHelpers_1.jwtHelpers.verifyAuthToken(req);
     const result = yield users_service_1.UserService.updateUser(payload, token);
+    (0, jwtHelpers_1.setAuthCookie)(res, result);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,

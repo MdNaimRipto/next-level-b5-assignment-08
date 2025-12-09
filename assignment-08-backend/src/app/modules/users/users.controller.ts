@@ -76,6 +76,8 @@ const updatedUser = catchAsync(async (req: Request, res: Response) => {
 
   const result = await UserService.updateUser(payload, token);
 
+  setAuthCookie(res, result);
+
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,

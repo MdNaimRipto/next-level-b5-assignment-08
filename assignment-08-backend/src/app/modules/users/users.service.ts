@@ -209,7 +209,7 @@ const logout = async (res: Response): Promise<null> => {
 const updateUser = async (
   payload: Partial<IUser>,
   token: string,
-): Promise<null> => {
+): Promise<IAuthenticatedUser> => {
   const { id: userID } = jwtHelpers.jwtVerify(token, config.jwt_access_secret);
 
   const isExistsUser = await Users.findById({ _id: userID });
@@ -270,11 +270,35 @@ const updateUser = async (
     updatePayload.contactNumber = payload.contactNumber;
   }
 
-  await Users.findOneAndUpdate({ _id: userID }, updatePayload, {
-    new: true,
-  });
+  const updatedUser = await Users.findOneAndUpdate(
+    { _id: userID },
+    updatePayload,
+    {
+      new: true,
+    },
+  );
 
-  return null;
+  const jwtPayload = {
+    email: updatedUser?.email,
+    id: updatedUser?._id,
+  };
+
+  const accessToken = jwtHelpers.createToken(
+    jwtPayload,
+    config.jwt_access_secret,
+    config.jwt_access_expires_in,
+  );
+
+  const refreshToken = jwtHelpers.createToken(
+    jwtPayload,
+    config.jwt_refresh_secret,
+    config.jwt_refresh_expires_in,
+  );
+
+  return {
+    accessToken,
+    refreshToken,
+  };
 };
 
 // * For Updating the password

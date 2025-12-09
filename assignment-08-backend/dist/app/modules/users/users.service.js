@@ -200,10 +200,19 @@ const updateUser = (payload, token) => __awaiter(void 0, void 0, void 0, functio
         }
         updatePayload.contactNumber = payload.contactNumber;
     }
-    yield users_schema_1.Users.findOneAndUpdate({ _id: userID }, updatePayload, {
+    const updatedUser = yield users_schema_1.Users.findOneAndUpdate({ _id: userID }, updatePayload, {
         new: true,
     });
-    return null;
+    const jwtPayload = {
+        email: updatedUser === null || updatedUser === void 0 ? void 0 : updatedUser.email,
+        id: updatedUser === null || updatedUser === void 0 ? void 0 : updatedUser._id,
+    };
+    const accessToken = jwtHelpers_1.jwtHelpers.createToken(jwtPayload, config_1.default.jwt_access_secret, config_1.default.jwt_access_expires_in);
+    const refreshToken = jwtHelpers_1.jwtHelpers.createToken(jwtPayload, config_1.default.jwt_refresh_secret, config_1.default.jwt_refresh_expires_in);
+    return {
+        accessToken,
+        refreshToken,
+    };
 });
 // * For Updating the password
 const updatePassword = (payload, token) => __awaiter(void 0, void 0, void 0, function* () {
