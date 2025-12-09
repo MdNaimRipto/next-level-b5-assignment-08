@@ -79,15 +79,20 @@ const updateOrder = (id, payload) => __awaiter(void 0, void 0, void 0, function*
     });
     return result;
 });
-const getOrdersOverview = () => __awaiter(void 0, void 0, void 0, function* () {
+const getOrdersOverview = (accessToken) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
-    const totalOrders = yield order_schema_1.Orders.countDocuments();
-    const totalAmount = yield order_schema_1.Orders.aggregate([
-        { $group: { _id: null, total: { $sum: "$paidAmount" } } },
+    // Only return overview for the logged-in host (or admin if desired)
+    const { id } = jwtHelpers_1.jwtHelpers.jwtVerify(accessToken, config_1.default.jwt_access_secret);
+    // total orders for this host
+    const totalOrders = yield order_schema_1.Orders.countDocuments({ hostId: id });
+    // total revenue for this host
+    const totalAmountAgg = yield order_schema_1.Orders.aggregate([
+        { $match: { hostId: new (require("mongoose").Types.ObjectId)(id) } },
+        { $group: { _id: "$hostId", total: { $sum: "$paidAmount" } } },
     ]);
     return {
         totalOrders,
-        totalAmount: ((_a = totalAmount[0]) === null || _a === void 0 ? void 0 : _a.total) || 0,
+        totalAmount: ((_a = totalAmountAgg[0]) === null || _a === void 0 ? void 0 : _a.total) || 0,
     };
 });
 exports.OrderService = {

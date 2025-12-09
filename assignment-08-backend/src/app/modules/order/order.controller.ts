@@ -53,9 +53,11 @@ const updateOrderStatus = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-// * Orders overview
+// * Orders overview (host-specific)
 const getOrdersOverview = catchAsync(async (req: Request, res: Response) => {
-  const result = await OrderService.getOrdersOverview();
+  const token = jwtHelpers.verifyAuthToken(req);
+
+  const result = await OrderService.getOrdersOverview(token);
 
   sendResponse(res, {
     success: true,

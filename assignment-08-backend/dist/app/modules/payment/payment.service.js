@@ -23,7 +23,15 @@ const stripe = new stripe_1.default(config_1.default.stripe_secret_key, {
     apiVersion: "2025-10-29.clover",
 });
 const createPaymentLink = (payload) => __awaiter(void 0, void 0, void 0, function* () {
-    const { paidAmount, currency, email, userId, eventId } = payload;
+    const { paidAmount, currency, email, userId, eventId, hostId } = payload;
+    if (userId === hostId) {
+        throw new ApiError_1.default(http_status_1.default.UNAUTHORIZED, "You cannot book your own hosted event");
+    }
+    // Prevent duplicate booking: same user cannot book same event twice
+    const alreadyBooked = yield order_schema_1.Orders.findOne({ userId: userId, eventId: eventId });
+    if (alreadyBooked) {
+        throw new ApiError_1.default(http_status_1.default.CONFLICT, "You have already booked this event with this account");
+    }
     try {
         const session = yield stripe.checkout.sessions.create({
             payment_method_types: ["card"],
@@ -46,6 +54,7 @@ const createPaymentLink = (payload) => __awaiter(void 0, void 0, void 0, functio
             cancel_url: `${config_1.default.FRONTEND_URL}/events`,
             metadata: {
                 userId: String(userId),
+                hostId: String(hostId),
                 eventId: String(eventId),
                 paidAmount: String(paidAmount),
                 email: String(email || ""),
@@ -78,6 +87,7 @@ const handleStripeWebhook = (req, res) => __awaiter(void 0, void 0, void 0, func
             const amountTotal = session.amount_total / 100; // back to base unit
             const orderPayload = {
                 userId: metadata.userId,
+                hostId: metadata.hostId,
                 eventId: metadata.eventId,
                 paidAmount: Number(metadata.paidAmount) || amountTotal,
                 transectionId: paymentIntentId,

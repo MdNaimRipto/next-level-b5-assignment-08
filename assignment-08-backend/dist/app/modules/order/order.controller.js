@@ -68,9 +68,10 @@ const updateOrderStatus = (0, catchAsync_1.default)((req, res) => __awaiter(void
         data: result,
     });
 }));
-// * Orders overview
+// * Orders overview (host-specific)
 const getOrdersOverview = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield order_service_1.OrderService.getOrdersOverview();
+    const token = jwtHelpers_1.jwtHelpers.verifyAuthToken(req);
+    const result = yield order_service_1.OrderService.getOrdersOverview(token);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: http_status_1.default.OK,

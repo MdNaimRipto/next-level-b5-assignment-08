@@ -12,7 +12,23 @@ const stripe = new Stripe(config.stripe_secret_key as string, {
 });
 
 const createPaymentLink = async (payload: IPaymentBody) => {
-  const { paidAmount, currency, email, userId, eventId } = payload;
+  const { paidAmount, currency, email, userId, eventId, hostId } = payload;
+
+  if (userId === hostId) {
+    throw new ApiError(
+      httpStatus.UNAUTHORIZED,
+      "You cannot book your own hosted event",
+    );
+  }
+
+  // Prevent duplicate booking: same user cannot book same event twice
+  const alreadyBooked = await Orders.findOne({ userId: userId, eventId: eventId });
+  if (alreadyBooked) {
+    throw new ApiError(
+      httpStatus.CONFLICT,
+      "You have already booked this event with this account",
+    );
+  }
 
   try {
     const session = await stripe.checkout.sessions.create({
@@ -36,6 +52,7 @@ const createPaymentLink = async (payload: IPaymentBody) => {
       cancel_url: `${config.FRONTEND_URL}/events`,
       metadata: {
         userId: String(userId),
+        hostId: String(hostId),
         eventId: String(eventId),
         paidAmount: String(paidAmount),
         email: String(email || ""),
@@ -75,6 +92,7 @@ export const handleStripeWebhook = async (req: any, res: any) => {
 
       const orderPayload: IOrder = {
         userId: metadata.userId,
+        hostId: metadata.hostId,
         eventId: metadata.eventId,
         paidAmount: Number(metadata.paidAmount) || amountTotal,
         transectionId: paymentIntentId,

@@ -78,15 +78,25 @@ const updateOrder = async (id: string, payload: Partial<IOrder>) => {
   return result;
 };
 
-const getOrdersOverview = async () => {
-  const totalOrders = await Orders.countDocuments();
-  const totalAmount = await Orders.aggregate([
-    { $group: { _id: null, total: { $sum: "$paidAmount" } } },
+const getOrdersOverview = async (accessToken: string) => {
+  // Only return overview for the logged-in host (or admin if desired)
+  const { id } = jwtHelpers.jwtVerify(
+    accessToken,
+    config.jwt_access_secret,
+  ) as any;
+
+  // total orders for this host
+  const totalOrders = await Orders.countDocuments({ hostId: id });
+
+  // total revenue for this host
+  const totalAmountAgg = await Orders.aggregate([
+    { $match: { hostId: new (require("mongoose").Types.ObjectId)(id) } },
+    { $group: { _id: "$hostId", total: { $sum: "$paidAmount" } } },
   ]);
 
   return {
     totalOrders,
-    totalAmount: totalAmount[0]?.total || 0,
+    totalAmount: totalAmountAgg[0]?.total || 0,
   };
 };
 
